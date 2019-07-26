@@ -1,0 +1,10 @@
+{
+  "name": "Gothenburg, Sweden",
+  "coordinates": {
+    "lat": "57.7089",
+    "lon": "11.9746"
+  },
+  "settings": {
+    "used_plugins": ["SMHIweather.js"]
+  }
+}
