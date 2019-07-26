@@ -13,13 +13,19 @@ let style = "";
 function initWeather(detailArg, gridElementArg, detailName) {
   addCSS(detailName);
   detail = detailArg;
+
+  let header = document.createElement("h3");
+  header.innerHTML = `<i class="fas fa-map-marker-alt"></i>${detail.name}`;
+  header.style = `width:100%;height:100px;line-height:100px;border-bottom:#CCC 1px solid`;
+  gridElementArg.appendChild(header);
+
   griditem = document.createElement("div");
+  gridElementArg.appendChild(griditem);
 
   let reload = document.createElement("i");
   reload.classList.add("fas", "fa-redo", "weather-reload");
   reload.onclick = fetchData;
   gridElementArg.appendChild(reload);
-  gridElementArg.appendChild(griditem);
 
   fetchData();
 }
@@ -32,17 +38,20 @@ function initWeather(detailArg, gridElementArg, detailName) {
 function addCSS(name) {
   let css = `
     div#${name} {
-      padding:10px;
       width: 500px;
-      height:200px;
+      height:400px;
     }
     div#${name} h3 {
       margin-top: 0;
       text-align:center;
       font-weight:300;
     }
+    div#${name} h3 i {
+      line-height:23px;
+    }
     div#${name} i {
       padding:0 5px 0 5px;
+      color:rgb(71, 168, 242);
     }
     .weather-reload {
       position: absolute;
@@ -93,7 +102,7 @@ function updateElement(data) {
   let currentTemp = data.timeSeries[0].parameters[11].values[0] + " " + data.timeSeries[0].parameters[11].unit;
   */
   let currentTemp = "32 Cel";
-  griditem.innerHTML = `<h3><i class="fas fa-map-marker-alt"></i>${detail.name}</h3><p>Right now it's ${currentTemp}`;
+  griditem.innerHTML = `<p>Right now it's ${currentTemp}`;
 }
 
 
