@@ -35,7 +35,7 @@ class TimeAndDate {
     let fullMonths = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
     /* I dont quite like this solution of chaining a lot of replace-functions. Hopefully I will improve this sometime */
-    this.divelement.innerText = this.detail.string
+    let text = this.detail.string
       .replace(/(%hh)/g, date.getHours())
       .replace(/(%mm)/g, (date.getMinutes()<10)?"0" + date.getMinutes():date.getMinutes())
       .replace(/(%ss)/g, date.getSeconds())
@@ -49,6 +49,8 @@ class TimeAndDate {
       .replace(/(%m)/g, date.getMonth()+1)
       .replace(/(%yyyy)/g, date.getFullYear())
       .replace(/(%y)/g, date.getFullYear() - 2000); /* I mean, this will work for a long time - but not forever. */
+
+    this.divelement.innerHTML = `<p>${text}</p>`;
   }
 }
 
