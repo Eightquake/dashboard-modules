@@ -22,6 +22,16 @@ class TimeAndDate {
     /* As this is a callback we need to bind the context (which is the object made from this class), otherwise it is lost */
     window.requestAnimationFrame(this._update.bind(this));
   }
+  addNth() {
+    let date = new Date().getDate();
+    if(date > 3 && date < 21) return 'th';
+    switch(date%10) {
+      case 1: return "st";
+      case 2: return "nd";
+      case 3: return "rd";
+      default: return "th";
+    }
+  }
   /**
     * Updates the text of the grid-item based on the details string. Not exactly private because, as far as I understood it, that is not implemented yet - but this is not supposed to be called by anything else than the requestAnimationFrame callback.
     * @private
@@ -41,6 +51,7 @@ class TimeAndDate {
       .replace(/(%ss)/g, date.getSeconds())
       .replace(/(%DDDD)/g, fullDays[date.getDay()])
       .replace(/(%DD)/g, fullDays[date.getDay()].substring(0, 3))
+      .replace(/(%dth)/g, this.addNth)
       .replace(/(%d)/g, (date.getDate()<10)?"0" + date.getDate():date.getDate())
       .replace(/(%MMMM)/g, fullMonths[date.getMonth()])
       .replace(/(%MMMM)/g, fullMonths[date.getMonth()])
