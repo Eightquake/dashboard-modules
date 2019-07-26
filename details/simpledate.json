@@ -1,0 +1,8 @@
+{
+  "style": "font-size: 48px; width: 500px; padding:20px; text-align: center;",
+  "string": "%hh:%mm\n%DDDD, %MMMM %d\n%yyyy-%MM-%d",
+  "settings": {
+    "used_plugins": ["timeclass.js"],
+    "update_interval": "0 * * * *"
+  }
+}
