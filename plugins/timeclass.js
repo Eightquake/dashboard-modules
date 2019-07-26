@@ -50,7 +50,7 @@ class TimeAndDate {
       .replace(/(%yyyy)/g, date.getFullYear())
       .replace(/(%y)/g, date.getFullYear() - 2000); /* I mean, this will work for a long time - but not forever. */
 
-    this.divelement.innerHTML = `<p>${text}</p>`;
+    this.divelement.innerHTML = text;
   }
 }
 

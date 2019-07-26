@@ -1,6 +1,6 @@
 {
-  "style": "font-size: 48px; width: 500px; padding:20px; text-align: center;font-weight:200;",
-  "string": "%hh:%mm %DDDD, %MMMM %d<br>%yyyy-%MM-%d",
+  "style": "width: 480px; height:100px; padding:10px; text-align:center;font-weight:200;",
+  "string": "<p style='font-size:58px; margin:0;float:left;line-height:100px;'>%hh:%mm</p><p style='font-size:38px;margin:0;float:right;line-height:50px;'>%DDDD, %MMMM %d<br>%yyyy-%MM-%d</p>",
   "settings": {
     "used_plugins": ["timeclass.js"],
     "update_interval": "0 * * * *"
