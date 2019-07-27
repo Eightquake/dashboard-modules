@@ -1,5 +1,5 @@
 {
-  "style": "width: 480px; height:100px; padding:10px; text-align:center;font-weight:200;",
+  "style": "width: 580px; height:100px; padding:10px; text-align:center;font-weight:200;",
   "string": "<p style='font-size:58px; margin:0;float:left;line-height:100px;'>%hh:%mm</p><div style='float:right;'><p style='font-size:30px;margin:0;padding-top:10px;line-height:50px;'>%DDDD, %MMMM %d%dth</p><p style='font-size:22px;margin:0;color:#999;'>%yyyy-%MM-%d</p></div>",
   "settings": {
     "used_plugins": ["timeclass.js"]
