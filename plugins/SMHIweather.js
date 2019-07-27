@@ -27,7 +27,7 @@ function initWeather(detailArg, gridElementArg, detailName) {
   gridElementArg.appendChild(header);
 
   griditem = document.createElement("div");
-  griditem.style = "width:100%;height:150px;"
+  griditem.style = "width:100%;height:250px;"
   gridElementArg.appendChild(griditem);
 
   let reload = document.createElement("i");
@@ -46,17 +46,17 @@ function initWeather(detailArg, gridElementArg, detailName) {
 function addCSS(name) {
   let css = `
     div#${name} {
-      width: 500px;
-      height:250px;
+      width: 600px;
+      height: 350px;
     }
     div#${name} i.fa-redo {
       padding:0 5px 0 5px;
-      color:rgb(71, 168, 242);
+      color:#999;
     }
     div#${name} i.fa-map-marker-alt {
       margin-top:-5px;
       padding:0 5px 0 5px;
-      color:#666;
+      color:#f01c19;
     }
     div#${name} #smhi-weather-header {
       width:100%;
@@ -92,7 +92,19 @@ function addCSS(name) {
       box-sizing: border-box;
       border:#EDEDED 1px solid;
     }
-    div#${name} .smhi-weather-forecast i {
+    div#${name} .smhi-weather-forecast h3 {
+      font-weight:300;
+      margin:10px 0 5px 0;
+    }
+    div#${name} .smhi-weather-forecast h4 {
+      font-weight:300;
+      margin:10px 0 5px 0;
+    }
+    div#${name} .smhi-weather-forecast p {
+      margin:0;
+      color:#666;
+    }
+    div#${name} .smhi-weather-forecast i.wsymb {
       font-size:48px;
       padding:15px 0 15px 0;
       color:#999;
@@ -102,6 +114,9 @@ function addCSS(name) {
     }
     div#${name} .smhi-weather-forecast i.fa-moon {
       color:#CCC;
+    }
+    div#${name} .smhi-weather-forecast i.fa-umbrella, div#${name} .smhi-weather-forecast i.fa-wind {
+      padding-right:4px;
     }
   `;
 
@@ -168,6 +183,7 @@ function fetchData() {
   * Updates the griditem element with the latest data
   * @function
   * @private
+  * @param {Array} datesArg - The array filled with the dates from the API, sorted so that the first one is the one closest to now.
   */
 function updateElement(datesArg) {
   /* Update the text to show when the JSON-file from SMHI was updated */
@@ -178,14 +194,16 @@ function updateElement(datesArg) {
 
   /* Let's make 5 forecasts with 3 hour jumps between them */
   for(let i=0; i<15; i+=3) {
+    let forecastTime = new Date(datesArg[i].data.validTime)
     /* Calculate the difference in time from now to when the forecast is */
-    let timediff = Math.round((new Date(datesArg[i].data.validTime) - new Date())/3600000);
+    let timediff = Math.round((forecastTime - new Date())/3600000);
     let timestring;
     /* If the timediff is quite close to now let's say now instead of in 1 hour */
     if(timediff <= 1) {
       timestring = "Now";
     }
     else {
+      /* If the timediff is larger display the time using the RelativeTimeFormat, and capitalize the first letter */
       timestring = rtf.format(timediff, "hours").charAt(0).toUpperCase() + rtf.format(timediff, "hours").slice(1);
     }
 
@@ -198,16 +216,35 @@ function updateElement(datesArg) {
     let wsymbIndex = datesArg[i].data.parameters.findIndex(function (element) {
       return element.name == "Wsymb2";
     });
-    let wsymb = translateWsymb2(datesArg[i].data.parameters[wsymbIndex].values[0], new Date(datesArg[i].data.validTime));
-    console.log(datesArg[i].data.validTime, wsymb);
+    let wsymb = translateWsymb2(datesArg[i].data.parameters[wsymbIndex].values[0], forecastTime);
+
+    let precipitationIndex = datesArg[i].data.parameters.findIndex(function (element) {
+      return element.name == "pmean";
+    });
+    let precipitation = datesArg[i].data.parameters[precipitationIndex].values[0];
+
+    let windspeedIndex = datesArg[i].data.parameters.findIndex(function (element) {
+      return element.name == "ws";
+    });
+    let windspeed = datesArg[i].data.parameters[windspeedIndex].values[0];
+
+
     /* Create a new temperature div that will contain this one forecast */
     let newTemp = document.createElement("div");
     newTemp.className = "smhi-weather-forecast";
-    newTemp.innerHTML = `<p>${timestring}<br><i class="${wsymb}"></i><br>${temperature}&deg;</p>`;
+    newTemp.innerHTML = `<h3>${timestring}</h3><p>${forecastTime.getHours()}:0${forecastTime.getMinutes()}</p><h4><i class="wsymb ${wsymb}"></i><br><br>${temperature}&deg;</h4><br><p><i class="fas fa-umbrella"></i>${precipitation} mm</p><p><i class="fas fa-wind"></i>${windspeed} m/s</p>`;
     griditem.appendChild(newTemp);
   }
 }
 
+/**
+  * Translates the Wsymb2 value from the API to a font-awesome icon
+  * @function
+  * @private
+  * @param {Integer} value - The Wsymb2 value
+  * @param {Date} time - A date object from the validTime value that's used to determine if the icon should show day or night version
+  * @returns {String} A string that can be used as the class to make the icon show correctly.
+  */
 function translateWsymb2(value, time) {
   let day = true;
   if(time && (time.getHours() < 6 || time.getHours() > 21)) {
