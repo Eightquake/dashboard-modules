@@ -227,46 +227,46 @@ function translateWsymb2(value, time) {
     array.push(day?"fa-cloud-sun":"fa-cloud-moon");
   }
   else if(value <= 7) {
-    array.push("fa-fog");
+    array.push("fa-smog");
   }
   else if(value <= 8) {
-    array.push("fa-cloud-showers");
+    array.push("fa-cloud-rain");
   }
   else if(value <= 9) {
-    array.push("fa-cloud-rain");
+    array.push("fa-cloud-showers-heavy");
   }
   else if(value <= 10) {
     array.push("fa-cloud-showers-heavy");
   }
   else if(value <= 11) {
-    array.push("fa-thunderstorm");
+    array.push("fa-bolt");
   }
   else if(value <= 14) {
     array.push("fa-cloud-sleet");
   }
   else if(value <= 17) {
-    array.push("fa-cloud-snow");
+    array.push("fa-snowflake");
   }
   else if(value <= 18) {
-    array.push("fa-cloud-showers");
+    array.push("fa-cloud-rain");
   }
   else if(value <= 19) {
-    array.push("fa-cloud-rain");
+    array.push("fa-cloud-showers-heavy");
   }
   else if(value <= 20) {
     array.push("fa-cloud-showers-heavy");
   }
   else if(value <= 21) {
-    array.push("fa-thunderstorm");
+    array.push("fa-bolt");
   }
   else if(value <= 22) {
-    array.push("fa-cloud-sleet");
+    array.push("fa-snowflake");
   }
   else if(value <= 24) {
-    array.push("fa-cloud-sleet");
+    array.push("fa-snowflake");
   }
   else if(value <= 27) {
-    array.push("fa-cloud-snow");
+    array.push("fa-snowflake");
   }
   return array.join(" ");
 }
