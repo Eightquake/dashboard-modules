@@ -1,5 +1,6 @@
 /**
-  * A plugin to fetch a weather forecast from SMHI using the SMHI Open Data API, the license for using the API is CC-BY 4.0, so I can use it as long as I mention that the data is originally from SMHI.
+  * A plugin to fetch a weather forecast from SMHI using the SMHI Open Data API, the license for using the API is CC-BY 4.0, so I can use it as long as I mention that the data is originally from SMHI.\n
+  * To avoid spamming SMHI it only refreshes from the API file when the refresh-button is pressed, otherwise it just continues showing the forecast it has.
   * @author Victor Davidsson
   * @version 0.5.0
   */
@@ -49,10 +50,6 @@ function addCSS(name) {
       width: 600px;
       height: 350px;
     }
-    div#${name} i.fa-redo {
-      padding:0 5px 0 5px;
-      color:#999;
-    }
     div#${name} i.fa-map-marker-alt {
       margin-top:-5px;
       padding:0 5px 0 5px;
@@ -83,6 +80,8 @@ function addCSS(name) {
       right: 1%;
       margin: 5px;
       cursor: pointer;
+      padding:2px;
+      color:#999;
     }
     div#${name} .smhi-weather-forecast {
       float:left;
@@ -171,11 +170,11 @@ function fetchData() {
           });
         }
       });
-      updateElement(dates);
+      updateElement();
     });
   }
   else {
-    updateElement(dates);
+    updateElement();
   }
 }
 
@@ -183,18 +182,32 @@ function fetchData() {
   * Updates the griditem element with the latest data
   * @function
   * @private
-  * @param {Array} datesArg - The array filled with the dates from the API, sorted so that the first one is the one closest to now.
   */
-function updateElement(datesArg) {
+function updateElement() {
+  /* Schedule to update this element every hour when the minute is 0 */
+  global.schedule.scheduleJob("0 * * * *", updateElement);
+  if(!data.approvedTime) {
+    global.problem.emit("warn", "SMHI weather tried reading the data from SMHI but it wasn't found. Maybe the plugin is currently fetching the data, or the API has changed?");
+    return;
+  }
+  /* Calculate how many hours it's been since the data was created/downloaded. */
+  let apiObjectAge = Math.round((new Date(data.approvedTime) - new Date())/3600000);
+
+  /* If it's been more than 7 days since it refreshed, it's time to update */
+  if(apiObjectAge < -24*7) {
+    global.problem.emit("info", "The data from SMHI hasn't been refreshed for a week! Forcing update now.");
+    return fetchData();
+  }
+
   /* Update the text to show when the JSON-file from SMHI was updated */
-  document.querySelector("#smhi-weather-updated").innerHTML = rtf.format(Math.round((new Date(data.approvedTime) - new Date())/3600000), "hours");
+  document.querySelector("#smhi-weather-updated").innerHTML = rtf.format(apiObjectAge, "hours");
 
   /* Clear the div with all of the old forecasts before continuing */
   griditem.innerHTML = "";
 
   /* Let's make 5 forecasts with 3 hour jumps between them */
   for(let i=0; i<15; i+=3) {
-    let forecastTime = new Date(datesArg[i].data.validTime)
+    let forecastTime = new Date(dates[i].data.validTime)
     /* Calculate the difference in time from now to when the forecast is */
     let timediff = Math.round((forecastTime - new Date())/3600000);
     let timestring;
@@ -208,31 +221,37 @@ function updateElement(datesArg) {
     }
 
     /* Find the parameter that is temperature, they seem to move around so I can't be sure where it is in the array */
-    let temperatureIndex = datesArg[i].data.parameters.findIndex(function (element) {
+    let temperatureIndex = dates[i].data.parameters.findIndex(function (element) {
       return element.name == "t";
     });
-    let temperature = datesArg[i].data.parameters[temperatureIndex].values[0];
+    let temperature = dates[i].data.parameters[temperatureIndex].values[0];
 
-    let wsymbIndex = datesArg[i].data.parameters.findIndex(function (element) {
+    let wsymbIndex = dates[i].data.parameters.findIndex(function (element) {
       return element.name == "Wsymb2";
     });
-    let wsymb = translateWsymb2(datesArg[i].data.parameters[wsymbIndex].values[0], forecastTime);
+    let wsymb = translateWsymb2(dates[i].data.parameters[wsymbIndex].values[0], forecastTime);
 
-    let precipitationIndex = datesArg[i].data.parameters.findIndex(function (element) {
+    let precipitationIndex = dates[i].data.parameters.findIndex(function (element) {
       return element.name == "pmean";
     });
-    let precipitation = datesArg[i].data.parameters[precipitationIndex].values[0];
+    let precipitation = dates[i].data.parameters[precipitationIndex].values[0];
 
-    let windspeedIndex = datesArg[i].data.parameters.findIndex(function (element) {
+    let windspeedIndex = dates[i].data.parameters.findIndex(function (element) {
       return element.name == "ws";
     });
-    let windspeed = datesArg[i].data.parameters[windspeedIndex].values[0];
+    let windspeed = dates[i].data.parameters[windspeedIndex].values[0];
 
 
     /* Create a new temperature div that will contain this one forecast */
     let newTemp = document.createElement("div");
     newTemp.className = "smhi-weather-forecast";
-    newTemp.innerHTML = `<h3>${timestring}</h3><p>${forecastTime.getHours()}:0${forecastTime.getMinutes()}</p><h4><i class="wsymb ${wsymb}"></i><br><br>${temperature}&deg;</h4><br><p><i class="fas fa-umbrella"></i>${precipitation} mm</p><p><i class="fas fa-wind"></i>${windspeed} m/s</p>`;
+    newTemp.innerHTML = `
+      <h3>${timestring}</h3>
+      <p>${forecastTime.getHours()}:0${forecastTime.getMinutes()}</p>
+      <h4><i class="wsymb ${wsymb}"></i><br><br>${temperature} &deg;C</h4>
+      <br>
+      <p><i class="fas fa-umbrella"></i>${precipitation} mm</p>
+      <p><i class="fas fa-wind"></i>${windspeed} m/s</p>`;
     griditem.appendChild(newTemp);
   }
 }
