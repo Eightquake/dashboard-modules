@@ -1,8 +1,9 @@
 /**
   * A plugin to fetch a weather forecast from SMHI using the SMHI Open Data API, the license for using the API is CC-BY 4.0, so I can use it as long as I mention that the data is originally from SMHI.\n
   * To avoid spamming SMHI it only refreshes from the API file when the refresh-button is pressed, otherwise it just continues showing the forecast it has.
+  * @todo Remove the INDEV comment so that the plugin reads from SMHI instead of a file
   * @author Victor Davidsson
-  * @version 0.5.0
+  * @version 0.9.0
   */
 
 const http = require("http");
@@ -18,6 +19,7 @@ const rtf = new Intl.RelativeTimeFormat('en', {numeric: 'auto'});
 
 function initWeather(detailArg, gridElementArg, detailName) {
   addCSS(detailName);
+  apiLink = `http://opendata-download-metfcst.smhi.se/api/category/pmp3g/version/2/geotype/point/lon/${detailArg.coordinates.lon}/lat/${detailArg.coordinates.lat}/data.json`;
 
   let header = document.createElement("div");
   header.id = "smhi-weather-header";
@@ -136,16 +138,24 @@ function addCSS(name) {
   */
 function fetchData() {
   /* INDEV, let's not spam SMHI with requests
-  apiLink = `http://opendata-download-metfcst.smhi.se/api/category/pmp3g/version/2/geotype/point/lon/${detail.coordinates.lon}/lat/${detail.coordinates.lat}/data.json`;
-  let apiData;
   http.get(apiLink, (response) => {
-    let data = '';
+    let readData = '';
     response.on('data', (chunk) => {
-      data += chunk;
+      readData += chunk;
     })
     response.on('end', () => {
-      apiData = JSON.parse(data);
-      updateElement(apiData);
+      data = JSON.parse(readData);
+      let date = new Date();
+      dates = [];
+      data.timeSeries.forEach((time) => {
+        let dataTime = new Date(time.validTime);
+        let offset = dataTime - date;
+        /* If offset is more than -3600000, meaning if the forecasts is more than an hour old it will be included */
+        /* INDEV if(offset >= -3600000) {
+          dates.push(time);
+        }
+      });
+      updateElement();
     })
   });
   */
