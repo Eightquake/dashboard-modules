@@ -114,6 +114,9 @@ function addCSS(name) {
     div#${name} .smhi-weather-forecast i.fa-moon {
       color:#CCC;
     }
+    div#${name} .smhi-weather-forecast i.fa-bolt {
+      color:#FDD023;
+    }
     div#${name} .smhi-weather-forecast i.fa-umbrella, div#${name} .smhi-weather-forecast i.fa-wind {
       padding-right:4px;
     }
@@ -147,7 +150,7 @@ function fetchData() {
   });
   */
   if(!data) {
-    fs.readFile(__dirname + "/SMHIdata.json", 'utf8', (err, readData) => {
+    fs.readFile(__dirname + "/SMHIdata2019-07-28T100223Z.json", 'utf8', (err, readData) => {
       if(err) throw err;
       data = JSON.parse(readData);
       let date = new Date();
@@ -155,19 +158,9 @@ function fetchData() {
       data.timeSeries.forEach((time) => {
         let dataTime = new Date(time.validTime);
         let offset = dataTime - date;
-        if(dates.length > 0 && Math.abs(offset) < Math.abs(dates[0].offset) && offset >= 0) {
-          dates.unshift({
-            date: dataTime,
-            offset: dataTime - date,
-            data: time
-          });
-        }
-        else if(offset >= 0) {
-          dates.push({
-            date: dataTime,
-            offset: dataTime - date,
-            data: time
-          });
+        /* If offset is more than -3600000, meaning if the forecasts is more than an hour old it will be included */
+        if(offset >= -3600000) {
+          dates.push(time);
         }
       });
       updateElement();
@@ -186,10 +179,12 @@ function fetchData() {
 function updateElement() {
   /* Schedule to update this element every hour when the minute is 0 */
   global.schedule.scheduleJob("0 * * * *", updateElement);
+
   if(!data.approvedTime) {
     global.problem.emit("warn", "SMHI weather tried reading the data from SMHI but it wasn't found. Maybe the plugin is currently fetching the data, or the API has changed?");
     return;
   }
+
   /* Calculate how many hours it's been since the data was created/downloaded. */
   let apiObjectAge = Math.round((new Date(data.approvedTime) - new Date())/3600000);
 
@@ -207,7 +202,7 @@ function updateElement() {
 
   /* Let's make 5 forecasts with 3 hour jumps between them */
   for(let i=0; i<15; i+=3) {
-    let forecastTime = new Date(dates[i].data.validTime)
+    let forecastTime = new Date(dates[i].validTime);
     /* Calculate the difference in time from now to when the forecast is */
     let timediff = Math.round((forecastTime - new Date())/3600000);
     let timestring;
@@ -221,25 +216,25 @@ function updateElement() {
     }
 
     /* Find the parameter that is temperature, they seem to move around so I can't be sure where it is in the array */
-    let temperatureIndex = dates[i].data.parameters.findIndex(function (element) {
+    let temperatureIndex = dates[i].parameters.findIndex(function (element) {
       return element.name == "t";
     });
-    let temperature = dates[i].data.parameters[temperatureIndex].values[0];
+    let temperature = dates[i].parameters[temperatureIndex].values[0];
 
-    let wsymbIndex = dates[i].data.parameters.findIndex(function (element) {
+    let wsymbIndex = dates[i].parameters.findIndex(function (element) {
       return element.name == "Wsymb2";
     });
-    let wsymb = translateWsymb2(dates[i].data.parameters[wsymbIndex].values[0], forecastTime);
+    let wsymb = translateWsymb2(dates[i].parameters[wsymbIndex].values[0], forecastTime);
 
-    let precipitationIndex = dates[i].data.parameters.findIndex(function (element) {
+    let precipitationIndex = dates[i].parameters.findIndex(function (element) {
       return element.name == "pmean";
     });
-    let precipitation = dates[i].data.parameters[precipitationIndex].values[0];
+    let precipitation = dates[i].parameters[precipitationIndex].values[0];
 
-    let windspeedIndex = dates[i].data.parameters.findIndex(function (element) {
+    let windspeedIndex = dates[i].parameters.findIndex(function (element) {
       return element.name == "ws";
     });
-    let windspeed = dates[i].data.parameters[windspeedIndex].values[0];
+    let windspeed = dates[i].parameters[windspeedIndex].values[0];
 
 
     /* Create a new temperature div that will contain this one forecast */
@@ -247,7 +242,7 @@ function updateElement() {
     newTemp.className = "smhi-weather-forecast";
     newTemp.innerHTML = `
       <h3>${timestring}</h3>
-      <p>${forecastTime.getHours()}:0${forecastTime.getMinutes()}</p>
+      <p>${forecastTime.getHours()}:00</p>
       <h4><i class="wsymb ${wsymb}"></i><br><br>${temperature} &deg;C</h4>
       <br>
       <p><i class="fas fa-umbrella"></i>${precipitation} mm</p>
