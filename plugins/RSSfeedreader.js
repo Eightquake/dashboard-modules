@@ -6,9 +6,11 @@ let detail, gridelement;
 /* RelativeTimeFormat to convert the dates from the API into a nice looking text, something like 2 hours ago */
 const rtf = new Intl.RelativeTimeFormat('en', {numeric: 'auto'});
 
-function initReader(detailArg, gridElementArg) {
+function initReader(detailArg, gridElementArg, detailName) {
   detail = detailArg;
   gridelement = gridElementArg;
+
+  addCSS(detailName);
 
   let rssRequest = request(detail.link);
   let feed = new FeedParser();
@@ -47,12 +49,40 @@ function initReader(detailArg, gridElementArg) {
 
       let itemElement = document.createElement("div");
       itemElement.innerHTML = `
-        <h4>${item["description"]}</h4>
-        <p>${item["title"]} | ${dateString}</p>
+        <h4 class="RSS-desc">${item["description"]}</h4>
+        <p class="RSS-footer">${item["title"]} | ${dateString}</p>
       `;
       gridelement.appendChild(itemElement);
     }
   });
+}
+
+function addCSS(name) {
+  let css = `
+    div#${name} {
+      width: 600px;
+    }
+    div#${name} h3 {
+      font-weight:300;
+      margin:10px 0 5px 0;
+    }
+    div#${name} .RSS-desc {
+      font-weight:300;
+      margin:10px 0 5px 0;
+    }
+    div#${name} .RSS-footer {
+      margin:0;
+      color:#666;
+      box-sizing: border-box;
+      border-bottom:1px solid #CCC;
+    }
+  `;
+
+  let link = document.createElement('link');
+  link.setAttribute('rel', 'stylesheet');
+  link.setAttribute('type', 'text/css');
+  link.setAttribute('href', `data:text/css;charset=UTF-8, ${encodeURIComponent(css)}`);
+  document.getElementsByTagName('head')[0].appendChild(link);
 }
 
 module.exports = {
