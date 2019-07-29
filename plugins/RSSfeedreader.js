@@ -26,6 +26,7 @@ function initReader(detailArg, gridElementArg, detailName) {
       this.emit('error', new Error(`Bad status code from the request - expected 200 but got ${resp.statusCode}`));
     }
     else {
+      gridelement.innerHTML = "";
       stream.pipe(feed);
     }
   });
@@ -46,12 +47,16 @@ function initReader(detailArg, gridElementArg, detailName) {
       else {
         dateString = rtf.format(itemAge, "hours");
       }
+      let descriptionElement = document.createElement("div");
+      descriptionElement.className = "RSS-desc";
+      descriptionElement.innerHTML = item["description"];
 
       let itemElement = document.createElement("div");
+      itemElement.className = "RSS-card";
       itemElement.innerHTML = `
-        <h4 class="RSS-desc">${item["description"]}</h4>
         <p class="RSS-footer">${item["title"]} | ${dateString}</p>
       `;
+      itemElement.appendChild(descriptionElement);
       gridelement.appendChild(itemElement);
     }
   });
@@ -66,15 +71,23 @@ function addCSS(name) {
       font-weight:300;
       margin:10px 0 5px 0;
     }
-    div#${name} .RSS-desc {
+    div#${name} .RSS-card {
       font-weight:300;
-      margin:10px 0 5px 0;
-    }
-    div#${name} .RSS-footer {
-      margin:0;
-      color:#666;
+      margin:10px;
       box-sizing: border-box;
       border-bottom:1px solid #CCC;
+    }
+    div#${name} .RSS-desc {
+      font-weight:300;
+      margin:10px 5px 5px 5px;
+    }
+    div#${name} .RSS-desc a {
+      color:#666;
+    }
+    div#${name} .RSS-footer {
+      margin:5px;
+      text-align:right;
+      color:#666;
     }
   `;
 
