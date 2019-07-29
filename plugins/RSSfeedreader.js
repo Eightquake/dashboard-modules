@@ -54,7 +54,7 @@ function initReader(detailArg, gridElementArg, detailName) {
       let itemElement = document.createElement("div");
       itemElement.className = "RSS-card";
       itemElement.innerHTML = `
-        <p class="RSS-footer">${item["title"]} | ${dateString}</p>
+        <div class="RSS-footer"><a href="${item["link"]}">${item["title"]}</a><p>${dateString}</p></div>
       `;
       itemElement.appendChild(descriptionElement);
       gridelement.appendChild(itemElement);
@@ -73,7 +73,7 @@ function addCSS(name) {
     }
     div#${name} .RSS-card {
       font-weight:300;
-      margin:10px;
+      margin:0.5em;
       box-sizing: border-box;
       border-bottom:1px solid #CCC;
     }
@@ -85,9 +85,19 @@ function addCSS(name) {
       color:#666;
     }
     div#${name} .RSS-footer {
-      margin:5px;
-      text-align:right;
+      margin:-0.5em 0 0 0;
+      float:right;
       color:#666;
+    }
+    div#${name} .RSS-footer a {
+      color:#999;
+    }
+    div#${name} .RSS-footer p {
+      margin:0 0.5em 0 0.5em;
+      padding:0 0 0 0.5em;
+      float:right;
+      box-sizing: border-box;
+      border-left:1px solid #999;
     }
   `;
 
