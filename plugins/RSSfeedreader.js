@@ -4,18 +4,18 @@ let request = require('request');
 let detail, gridelement, griditem;
 
 /* RelativeTimeFormat to convert the dates from the API into a nice looking text, something like 2 hours ago */
-const rtf = new Intl.RelativeTimeFormat('en', {numeric: 'auto'});
+const rtf = new Intl.RelativeTimeFormat('sv', {numeric: 'auto'});
 
 function initReader(detailArg, gridElementArg, detailName) {
   detail = detailArg;
   gridelement = gridElementArg;
 
   let topBar = document.createElement("div");
-  topBar.className = "RSS-top-bar";
+  topBar.classList.add("RSS-top-bar", "drag-handle");
   /* If possible, link to the forumLink instead of the actual RSS feed */
-  let topBarLink = detail.forumLink?detail.forumLink:detail.link;
+  let topBarLink = detail.external_link?detail.external_link:detail.link;
   topBar.innerHTML = `
-    <a title="${topBarLink}" href="${topBarLink}"><i class="fas fa-external-link-alt"></i></a>
+    <p>${detail.name}</p><a title="${topBarLink}" href="${topBarLink}"><i class="fas fa-external-link-alt"></i></a>
   `;
   let refresh = document.createElement("a");
   refresh.innerHTML = '<i class="fas fa-redo"></i>';
@@ -45,8 +45,16 @@ function addCSS(name) {
     div#${name} .RSS-top-bar {
       width:100%;
       height:2em;
-      line-height:1.5em;
+      line-height:1.7em;
       text-align:right;
+      box-shadow:0 4px 5px -3px #999;
+      background-color:#9BC3E8;
+    }
+    div#${name} .RSS-top-bar p {
+      float:left;
+      margin:0 0 0 0.5em;
+      line-height:2em;
+      color:#666;
     }
     div#${name} .RSS-top-bar i {
       color:#999;
@@ -64,6 +72,10 @@ function addCSS(name) {
       margin:0.5em;
       box-sizing: border-box;
       border-bottom:1px solid #CCC;
+    }
+    div#${name} .RSS-desc div *::selection, div#${name} .RSS-footer *::selection {
+      color:#FFF;
+      background-color:#999;
     }
     div#${name} .RSS-desc {
       font-weight:300;
@@ -127,7 +139,7 @@ function fetchRSSFeed() {
       let itemAge = Math.round((itemDate - new Date())/3600000);
       let dateString;
       if(itemAge >= -1) {
-        dateString = "Less than an hour ago";
+        dateString = "mindre än en timme sedan";
       }
       else {
         dateString = rtf.format(itemAge, "hours");

@@ -1,6 +1,7 @@
 {
+  "name": "SweClockers.com Dagens fynd",
   "link": "https://www.sweclockers.com/feeds/forum/trad/999559",
-  "forumLink": "https://www.sweclockers.com/forum/trad/999559-dagens-fynd-bara-tips-ingen-diskussion-las-forsta-inlagget-forst/sista-sidan",
+  "external_link": "https://www.sweclockers.com/forum/trad/999559-dagens-fynd-bara-tips-ingen-diskussion-las-forsta-inlagget-forst/sista-sidan",
   "settings": {
     "used_plugins": ["RSSfeedreader.js"]
   }
