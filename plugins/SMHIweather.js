@@ -64,9 +64,22 @@ function addCSS(name) {
       border-bottom:#CCC 1px solid;
       text-align:center;
     }
+    body.light div#${name} #smhi-weather-header {
+      box-sizing: border-box;
+      border-bottom:#CCC 1px solid;
+    }
+    body.dark div#${name} #smhi-weather-header {
+      box-sizing: border-box;
+      border-bottom:#666 1px solid;
+    }
     div#${name} #smhi-weather-header #smhi-weather-updated {
       font-style:italic;
+    }
+    body.light div#${name} #smhi-weather-header #smhi-weather-updated {
       color:#999;
+    }
+    body.dark div#${name} #smhi-weather-header #smhi-weather-updated {
+      color:#666;
     }
     div#${name} #smhi-weather-header h3 {
       font-weight:300;
@@ -90,8 +103,14 @@ function addCSS(name) {
       width:20%;
       height:100%;
       text-align:center;
+    }
+    body.light div#${name} .smhi-weather-forecast {
       box-sizing: border-box;
       border:#EDEDED 1px solid;
+    }
+    body.dark div#${name} .smhi-weather-forecast {
+      box-sizing: border-box;
+      border:#888 1px solid;
     }
     div#${name} .smhi-weather-forecast h3 {
       font-weight:300;
