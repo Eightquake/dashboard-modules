@@ -147,7 +147,7 @@ function addCSS(name) {
   link.setAttribute('rel', 'stylesheet');
   link.setAttribute('type', 'text/css');
   link.setAttribute('href', `data:text/css;charset=UTF-8, ${encodeURIComponent(css)}`);
-  document.getElementsByTagName('head')[0].appendChild(link);
+  document.head.appendChild(link);
 }
 
 /**
