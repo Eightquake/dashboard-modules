@@ -1,5 +1,6 @@
 /**
   * A class for a simple plugin that can be used for displaying time and date.
+  * @see {@link https://github.com/Eightquake/dashboard-modules} for more information and the actual file as it isn't in this repo.
   * @category Plugins
   * @author Victor Davidsson
   * @version 1.5.0

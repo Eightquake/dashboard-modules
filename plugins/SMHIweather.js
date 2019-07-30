@@ -2,9 +2,13 @@
   * A plugin to fetch a weather forecast from SMHI using the SMHI Open Data API, the license for using the API is CC-BY 4.0, so I can use it as long as I mention that the data is originally from SMHI.\n
   * To avoid spamming SMHI it only refreshes from the API file when the refresh-button is pressed, otherwise it just continues showing the forecast it has.
   * @todo Remove the INDEV comment so that the plugin reads from SMHI instead of a file
+  * @see {@link https://github.com/Eightquake/dashboard-modules} for more information and the actual file as it isn't in this repo.
+  * @category Plugins
+  * @module SMHIweather
   * @author Victor Davidsson
-  * @version 0.9.0
+  * @version 0.9.9
   */
+
 
 const http = require("http");
 /* INDEV, this won't be needed later */ const fs = require("fs");

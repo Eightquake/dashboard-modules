@@ -1,3 +1,13 @@
+/**
+  * A plugin to read a RSS feed and parse it, showing the items in a list on the dashboard.\n
+  * It does not update automatically, but has a button for refreshing the feed. It also has a button for opening either the feed link externally or a link that can be defined in the detail.
+  * @category Plugins
+  * @module RSSfeedreader
+  * @author Victor Davidsson
+  * @version 0.5.0
+  */
+
+
 let FeedParser = require('feedparser');
 let request = require('request');
 
