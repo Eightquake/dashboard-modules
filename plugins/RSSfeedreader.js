@@ -1,6 +1,8 @@
 /**
   * A plugin to read a RSS feed and parse it, showing the items in a list on the dashboard.\n
   * It does not update automatically, but has a button for refreshing the feed. It also has a button for opening either the feed link externally or a link that can be defined in the detail.
+  * @todo Update the element regularly so the timestamps are correct all the time. Update the feed once in a while and check build-date or similar to determine if it should continue parsing the feed?
+  * @see {@link https://github.com/Eightquake/dashboard-modules} for more information and the actual file as it isn't in this repo.
   * @category Plugins
   * @module RSSfeedreader
   * @author Victor Davidsson
@@ -123,7 +125,7 @@ function fetchRSSFeed() {
   let feed = new FeedParser();
 
   rssRequest.on('error', function(error) {
-    //global.problem.emit("error", "The request for the RSS feed encountered an error.<br>" + error);
+    global.problem.emit("error", "The request for the RSS feed encountered an error.<br>" + error);
     throw error;
   });
   rssRequest.on('response', function(resp) {

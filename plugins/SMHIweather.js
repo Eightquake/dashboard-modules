@@ -11,7 +11,6 @@
 
 
 const http = require("http");
-/* INDEV, this won't be needed later */ const fs = require("fs");
 
 let apiLink;
 let griditem;
@@ -160,7 +159,6 @@ function addCSS(name) {
   * @private
   */
 function fetchData() {
-  /* INDEV, let's not spam SMHI with requests
   http.get(apiLink, (response) => {
     let readData = '';
     response.on('data', (chunk) => {
@@ -173,35 +171,14 @@ function fetchData() {
       data.timeSeries.forEach((time) => {
         let dataTime = new Date(time.validTime);
         let offset = dataTime - date;
-        /* If offset is more than -3600000, meaning if the forecasts is more than an hour old it will be included */
-        /* INDEV if(offset >= -3600000) {
+        /* If offset is more than -3600000, meaning if the forecasts is less than an hour old or is in the future it will be included */
+        if(offset >= -3600000) {
           dates.push(time);
         }
       });
       updateElement();
     })
   });
-  */
-  if(!data) {
-    fs.readFile(__dirname + "/SMHIdata2019-07-28T100223Z.json", 'utf8', (err, readData) => {
-      if(err) throw err;
-      data = JSON.parse(readData);
-      let date = new Date();
-      dates = [];
-      data.timeSeries.forEach((time) => {
-        let dataTime = new Date(time.validTime);
-        let offset = dataTime - date;
-        /* If offset is more than -3600000, meaning if the forecasts is more than an hour old it will be included */
-        if(offset >= -3600000) {
-          dates.push(time);
-        }
-      });
-      updateElement();
-    });
-  }
-  else {
-    updateElement();
-  }
 }
 
 /**
