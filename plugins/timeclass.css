@@ -1,0 +1,27 @@
+/* Fix that allows newline break character in React strings found online, works great */
+.timeclass, .timeclasscard {
+  white-space: pre-wrap;
+}
+
+.timeclass {
+  width: 450px;
+  height: 4em;
+  background-color: rgba(0, 0, 0, 0.03);
+  padding: 10px;
+}
+
+.timeclass .time {
+  float: left;
+}
+
+.timeclass .time h1 {
+  line-height: 1.5em;
+}
+
+.timeclass .body {
+  float: right;
+  padding-left: 20px;
+  border-left: 1px solid #ccc;
+  width: 300px;
+  height: 4em;
+}

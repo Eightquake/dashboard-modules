@@ -1,0 +1,8 @@
+{
+  "header": "%hh:%mm:%ss",
+  "body": "Today is %DDDD, %MMMM %d%dth\n%yyyy-%MM-%dd",
+  "style": {"width": "500px"},
+  "settings": {
+    "used_plugins": ["timeclasscard.jsx"]
+  }
+}

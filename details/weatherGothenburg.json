@@ -5,6 +5,6 @@
     "lon": "11.9746"
   },
   "settings": {
-    "used_plugins": ["SMHIweather.js"]
+    "used_plugins": ["SMHIweather.jsx"]
   }
 }
