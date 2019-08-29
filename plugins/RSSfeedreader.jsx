@@ -31,7 +31,7 @@ export default class RSSfeedreader extends React.Component {
     rssRequest.on("error", function(error) {
       global.problem.emit(
         "error",
-        "The request for the RSS feed encountered an error.<br>" + error
+        "The request for the RSS feed encountered an error.\n" + error
       );
     });
     rssRequest.on("response", function(resp) {
@@ -51,7 +51,7 @@ export default class RSSfeedreader extends React.Component {
     feed.on("error", function(error) {
       global.problem.emit(
         "error",
-        "The parser for the RSS feed encountered an error.<br>" + error
+        "The parser for the RSS feed encountered an error.\n" + error
       );
     });
 
