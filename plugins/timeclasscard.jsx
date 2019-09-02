@@ -10,7 +10,7 @@ import "./timeclass.css";
  * @version 1.0.0
  */
 
-export default class TimeAndDate extends React.Component {
+export default class TimeAndDateCard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
