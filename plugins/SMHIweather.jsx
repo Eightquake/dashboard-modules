@@ -12,8 +12,9 @@ export default class SMHIWeather extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      name: props.detail.name || "Unknown",
-      apiLink: `http://opendata-download-metfcst.smhi.se/api/category/pmp3g/version/2/geotype/point/lon/${props.detail.coordinates.lon}/lat/${props.detail.coordinates.lat}/data.json`,
+      fetchTime: 0,
+      fetchAge: 0,
+      approvedTime: 0,
       apiObjectAge: 0,
       cardList: []
     };
@@ -23,32 +24,47 @@ export default class SMHIWeather extends React.Component {
     /* <TODO>Fix the scheduling to be something better</TODO> */
     this.timerID = setInterval(() => {
       this._updateCards();
+
+      /* 60 * 24 as apiObjectAge is stores as minutes, and I wan't to check if it's more than 24 hours */
+      if (this.state.apiObjectAge <= -(60 * 24)) {
+        global.problem.emit(
+          "info",
+          "The weather hasn't been fetched for 24 hours, forcing a refresh now."
+        );
+      }
     }, 1000);
   }
   componentWillUnmount() {
     clearInterval(this.timerID);
   }
   _fetchData = () => {
-    http.get(this.state.apiLink, response => {
-      let readData = "";
-      response.on("data", chunk => {
-        readData += chunk;
-      });
-      response.on("end", () => {
-        data = JSON.parse(readData);
-        let date = new Date();
-        let newDates = [];
-        data.timeSeries.forEach(time => {
-          let dataTime = new Date(time.validTime);
-          let offset = dataTime - date;
-          /* If offset is more than -3600000, meaning if the forecasts is less than an hour old or is in the future it will be included */
-          if (offset >= -3600000) {
-            newDates.push(time);
-          }
+    http.get(
+      `http://opendata-download-metfcst.smhi.se/api/category/pmp3g/version/2/geotype/point/lon/${this.props.detail.coordinates.lon}/lat/${this.props.detail.coordinates.lat}/data.json`,
+      response => {
+        let readData = "";
+        response.on("data", chunk => {
+          readData += chunk;
         });
-        this.setState({ approvedTime: data.approvedTime, dates: newDates });
-      });
-    });
+        response.on("end", () => {
+          data = JSON.parse(readData);
+          let date = new Date();
+          let newDates = [];
+          data.timeSeries.forEach(time => {
+            let dataTime = new Date(time.validTime);
+            let offset = dataTime - date;
+            /* If offset is more than -3600000, meaning if the forecasts is less than an hour old or is in the future it will be included */
+            if (offset >= -3600000) {
+              newDates.push(time);
+            }
+          });
+          this.setState({
+            fetchTime: new Date(),
+            approvedTime: new Date(data.approvedTime),
+            dates: newDates
+          });
+        });
+      }
+    );
   };
   _translateWsymb2ToFa = (value, time) => {
     let day = true;
@@ -103,10 +119,12 @@ export default class SMHIWeather extends React.Component {
   _updateCards = () => {
     /* Calculate how many hours it's been since the data was created/downloaded. */
     let apiObjectAge = Math.round(
-      (new Date(this.state.approvedTime) - new Date()) / 3600000
+      (this.state.approvedTime - new Date()) / 60000
     );
 
-    let cards = { apiObjectAge, list: [] };
+    let fetchAge = Math.round((this.state.fetchTime - new Date()) / 60000);
+
+    let cardList = [];
     /* Let's make 5 forecasts with 3 hour jumps between them */
     for (let i = 0; i < 15; i += 3) {
       let forecastTime = new Date(this.state.dates[i].validTime);
@@ -114,15 +132,12 @@ export default class SMHIWeather extends React.Component {
       let timediff = Math.round((forecastTime - new Date()) / 3600000);
       let timestring;
       /* If the timediff is quite close to now let's say now instead of in 1 hour */
-      if (timediff <= 1) {
+      if (timediff <= 1 && timediff >= -1) {
         timestring = "Now";
       } else {
         /* If the timediff is larger display the time using the RelativeTimeFormat, and capitalize the first letter */
-        timestring =
-          rtf
-            .format(timediff, "hours")
-            .charAt(0)
-            .toUpperCase() + rtf.format(timediff, "hours").slice(1);
+        timestring = rtf.format(timediff, "hours");
+        timestring = timestring.charAt(0).toUpperCase() + timestring.slice(1);
       }
 
       /* Find the parameter that is temperature, they seem to move around so I can't be sure where it is in the array */
@@ -159,7 +174,7 @@ export default class SMHIWeather extends React.Component {
       });
       let windspeed = this.state.dates[i].parameters[windspeedIndex].values[0];
 
-      cards.list.push({
+      cardList.push({
         forecastTime,
         timestring,
         temperature,
@@ -168,7 +183,7 @@ export default class SMHIWeather extends React.Component {
         windspeed
       });
     }
-    this.setState({ apiObjectAge, cardList: cards.list });
+    this.setState({ apiObjectAge, fetchAge, cardList });
   };
   render() {
     return (
@@ -177,10 +192,18 @@ export default class SMHIWeather extends React.Component {
           <i className="fas fa-redo weather-reload" onClick={this._fetchData} />
           <h3>
             <i className="fas fa-map-marker-alt"></i>
-            {this.state.name}
+            {this.props.detail.name ||
+              this.props.detail.coordinates.lon +
+                "N " +
+                this.props.detail.coordinates.lat +
+                "W"}
           </h3>
           <p id="smhi-weather-updated">
-            Last updated {rtf.format(this.state.apiObjectAge, "minutes")}
+            Last updated{" "}
+            {this.state.fetchAge <= 1
+              ? "just now"
+              : rtf.format(this.state.fetchAge, "minutes")}
+            , forecast was made {rtf.format(this.state.apiObjectAge, "minutes")}
           </p>
         </div>
         {this.state.cardList.map((element, index) => (
